@@ -1,0 +1,65 @@
+from database.DB_connect import DBConnect
+
+
+class DAO():
+    def __init__(self):
+        pass
+    @staticmethod
+    def getState(anno):
+        conn = DBConnect.get_connection()
+
+        result = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """select distinct s.Name 
+                from state s , sighting s2 
+                where s.id = s2.state and year(s2.`datetime`) = %s
+                order by s.Name asc 
+        
+                """
+        cursor.execute(query, (anno))
+        for row in cursor:
+            result.append(row["Name"])
+        cursor.close()
+        conn.close()
+        return result
+
+    @staticmethod
+    def getNodi(anno):
+        conn = DBConnect.get_connection()
+
+        result = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """ select distinct s.state 
+                    from sighting s 
+                    where year(s.`datetime`) = %s
+                    order by s.state """
+        cursor.execute(query, (anno, ))
+        for row in cursor:
+            result.append(row["state"])
+        cursor.close()
+        conn.close()
+        return result
+
+    @staticmethod
+    def getSightings(anno):
+        conn = DBConnect.get_connection()
+
+        result = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """ SELECT s2.state, s2.datetime 
+                    FROM sighting s2
+                    WHERE YEAR(s2.`datetime`) = %s
+                    ORDER BY s2.datetime
+                            """
+
+        cursor.execute(query, (anno, ))
+
+        for row in cursor:
+            result.append((row["state"], row["datetime"]))
+
+        cursor.close()
+        conn.close()
+        return result
